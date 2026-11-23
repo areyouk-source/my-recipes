@@ -1,4 +1,20 @@
 {
-  "updatedAt": "2026-11-23T07:42:46.966Z",
-  "menus": []
+  "updatedAt": "2026-11-23T08:08:27.940Z",
+  "menus": [
+    {
+      "id": "menu_1795421307940",
+      "name": "ㅁ",
+      "category": "유아식",
+      "recipes": [
+        {
+          "id": "rec_1795421307940",
+          "title": "ㅁ",
+          "url": "",
+          "rating": 5,
+          "memo": "",
+          "updatedAt": "2026-11-23"
+        }
+      ]
+    }
+  ]
 }
