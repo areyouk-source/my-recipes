@@ -5,6 +5,8 @@ const STORAGE_KEYS = {
   token: "recipe_gh_token"
 };
 
+const DEFAULT_CATEGORIES = ["찌개/탕", "볶음/조림", "면/밥", "기타"];
+
 let state = {
   data: { updatedAt: "", menus: [] },
   fileSha: null,
@@ -21,6 +23,7 @@ const els = {
   sortSelect: document.getElementById("sortSelect"),
   statusBanner: document.getElementById("statusBanner"),
   existingMenusList: document.getElementById("existingMenusList"),
+  categoryList: document.getElementById("categoryList"),
 
   recipeModal: document.getElementById("recipeModal"),
   modalTitle: document.getElementById("modalTitle"),
@@ -49,6 +52,15 @@ function getConfig() {
     path: localStorage.getItem(STORAGE_KEYS.path) || "data/recipes.json",
     token: localStorage.getItem(STORAGE_KEYS.token) || ""
   };
+}
+
+function getAllCategories() {
+  const set = new Set(DEFAULT_CATEGORIES);
+  for (const menu of state.data.menus || []) {
+    const cat = (menu.category || "").trim();
+    if (cat) set.add(cat);
+  }
+  return Array.from(set);
 }
 
 function showStatus(msg) {
@@ -85,7 +97,6 @@ function renderStars(rating) {
   return "★".repeat(n) + "☆".repeat(5 - n);
 }
 
-// UTF-8 문자열을 Base64로 안전하게 변환
 function toBase64Utf8(str) {
   const bytes = new TextEncoder().encode(str);
   let bin = "";
@@ -95,7 +106,6 @@ function toBase64Utf8(str) {
   return btoa(bin);
 }
 
-// Base64를 UTF-8 문자열로 안전하게 디코딩
 function fromBase64Utf8(base64) {
   const clean = base64.replace(/\n/g, "");
   const bin = atob(clean);
@@ -127,7 +137,6 @@ async function loadRecipes() {
           : "읽기 모드입니다. 추가·수정·저장을 하려면 [GitHub 설정]에서 PAT를 입력하세요."
       );
     } else {
-      // GitHub 설정 전에는 동일 저장소의 정적 data/recipes.json 로드
       const res = await fetch(`${cfg.path}?t=${Date.now()}`);
       if (!res.ok) throw new Error("기본 recipes.json을 불러오지 못했습니다.");
       state.data = await res.json();
@@ -139,7 +148,7 @@ async function loadRecipes() {
     if (state.expandedMenus.size === 0 && state.data.menus.length > 0) {
       state.expandedMenus.add(state.data.menus[0].id);
     }
-    syncMenuDatalist();
+    syncMetaLists();
     render();
   } catch (err) {
     showStatus(`불러오기 실패: ${err.message}`);
@@ -184,9 +193,26 @@ async function saveRecipesToGitHub() {
   return true;
 }
 
-function syncMenuDatalist() {
+function syncMetaLists() {
   els.existingMenusList.innerHTML = state.data.menus
     .map((m) => `<option value="${escapeHtml(m.name)}"></option>`)
+    .join("");
+
+  const categories = getAllCategories();
+  if (state.category !== "전체" && !categories.includes(state.category)) {
+    state.category = "전체";
+  }
+
+  els.categoryList.innerHTML = categories
+    .map((c) => `<option value="${escapeHtml(c)}"></option>`)
+    .join("");
+
+  const tabItems = ["전체", ...categories];
+  els.categoryTabs.innerHTML = tabItems
+    .map(
+      (c) =>
+        `<button class="tab ${state.category === c ? "active" : ""}" data-category="${escapeHtml(c)}">${escapeHtml(c)}</button>`
+    )
     .join("");
 }
 
@@ -203,7 +229,7 @@ function getFilteredMenus() {
 
   return state.data.menus
     .filter((menu) => {
-      if (state.category !== "전체" && menu.category !== state.category) {
+      if (state.category !== "전체" && (menu.category || "기타") !== state.category) {
         return false;
       }
       if (!q) return true;
@@ -253,7 +279,7 @@ function render() {
           <div class="menu-header" data-toggle-menu="${escapeHtml(menu.id)}">
             <div class="menu-title-group">
               <h2 class="menu-title">${escapeHtml(menu.name)}</h2>
-              <span class="badge">${escapeHtml(menu.category)}</span>
+              <span class="badge">${escapeHtml(menu.category || "기타")}</span>
               <span class="badge">레시피 ${menu.recipes.length}개</span>
             </div>
             <div class="menu-meta">
@@ -308,6 +334,7 @@ function renderRecipeItem(menuId, rec) {
 }
 
 function openRecipeModal(menuId = "", recipeId = "") {
+  syncMetaLists();
   els.recipeForm.reset();
   els.editMenuId.value = menuId;
   els.editRecipeId.value = recipeId;
@@ -318,7 +345,7 @@ function openRecipeModal(menuId = "", recipeId = "") {
     if (menu && rec) {
       els.modalTitle.textContent = "레시피 수정";
       els.menuNameInput.value = menu.name;
-      els.categoryInput.value = menu.category;
+      els.categoryInput.value = menu.category || "기타";
       els.recipeTitleInput.value = rec.title;
       els.recipeUrlInput.value = rec.url || "";
       els.ratingInput.value = String(rec.rating || 5);
@@ -326,6 +353,7 @@ function openRecipeModal(menuId = "", recipeId = "") {
     }
   } else {
     els.modalTitle.textContent = "레시피 추가";
+    els.categoryInput.value = state.category !== "전체" ? state.category : "찌개/탕";
     els.ratingInput.value = "5";
   }
 
@@ -371,9 +399,8 @@ els.sortSelect.addEventListener("change", (e) => {
 els.categoryTabs.addEventListener("click", (e) => {
   const btn = e.target.closest(".tab");
   if (!btn) return;
-  els.categoryTabs.querySelectorAll(".tab").forEach((t) => t.classList.remove("active"));
-  btn.classList.add("active");
   state.category = btn.dataset.category;
+  syncMetaLists();
   render();
 });
 
@@ -415,6 +442,7 @@ els.menuList.addEventListener("click", async (e) => {
       } else {
         showStatus("저장 완료되었습니다.");
       }
+      syncMetaLists();
       render();
     } catch (err) {
       state.data.menus = prevMenus;
@@ -428,7 +456,7 @@ els.recipeForm.addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const menuName = els.menuNameInput.value.trim();
-  const category = els.categoryInput.value;
+  const category = els.categoryInput.value.trim() || "기타";
   const title = els.recipeTitleInput.value.trim();
   const url = els.recipeUrlInput.value.trim();
   const rating = Number(els.ratingInput.value) || 5;
@@ -440,7 +468,6 @@ els.recipeForm.addEventListener("submit", async (e) => {
 
   const prevMenus = structuredClone(state.data.menus);
 
-  // 기존 수정 시 원래 항목 제거 후 대상 메뉴에 재배치
   if (origMenuId && origRecipeId) {
     const oldMenu = state.data.menus.find((m) => m.id === origMenuId);
     if (oldMenu) {
@@ -490,7 +517,7 @@ els.recipeForm.addEventListener("submit", async (e) => {
     }
 
     closeRecipeModal();
-    syncMenuDatalist();
+    syncMetaLists();
     render();
     showStatus("저장 완료되었습니다.");
   } catch (err) {

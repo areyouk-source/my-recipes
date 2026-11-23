@@ -69,12 +69,14 @@
 
         <label class="field">
           <span>카테고리</span>
-          <select id="categoryInput">
-            <option value="찌개/탕">찌개/탕</option>
-            <option value="볶음/조림">볶음/조림</option>
-            <option value="면/밥">면/밥</option>
-            <option value="기타">기타</option>
-          </select>
+          <input
+            type="text"
+            id="categoryInput"
+            list="categoryList"
+            placeholder="예: 찌개/탕, 반찬, 안주/야식 (새 이름 입력 가능)"
+            required
+          />
+          <datalist id="categoryList"></datalist>
         </label>
 
         <label class="field">
