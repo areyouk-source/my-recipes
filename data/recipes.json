@@ -1,20 +1,4 @@
 {
-  "updatedAt": "2026-11-23T07:42:42.368Z",
-  "menus": [
-    {
-      "id": "menu_1001",
-      "name": "차돌박이 된장찌개",
-      "category": "찌개/탕",
-      "recipes": [
-        {
-          "id": "rec_2002",
-          "title": "멸치육수 맑은 된장찌개",
-          "url": "https://youtu.be/dQw4w9WgXcQ",
-          "rating": 3,
-          "memo": "깔끔하지만 고기 버전보다 감칠맛은 덜함. 청양고추 2개 추가하면 괜찮음.",
-          "updatedAt": "2026-11-15"
-        }
-      ]
-    }
-  ]
+  "updatedAt": "2026-11-23T07:42:46.966Z",
+  "menus": []
 }
