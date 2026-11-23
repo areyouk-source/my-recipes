@@ -1,19 +1,11 @@
 {
-  "updatedAt": "2026-11-21T17:00:00+09:00",
+  "updatedAt": "2026-11-23T07:42:38.714Z",
   "menus": [
     {
       "id": "menu_1001",
       "name": "차돌박이 된장찌개",
       "category": "찌개/탕",
       "recipes": [
-        {
-          "id": "rec_2001",
-          "title": "고깃집 스타일 된장찌개 레시피",
-          "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-          "rating": 5,
-          "memo": "된장 1.5스푼 + 쌈장 0.5스푼 비율이 딱 맞음. 차돌 기름 먼저 충분히 볶을 것.",
-          "updatedAt": "2026-11-21"
-        },
         {
           "id": "rec_2002",
           "title": "멸치육수 맑은 된장찌개",
