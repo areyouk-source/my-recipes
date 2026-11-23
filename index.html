@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>내 레시피 아카이브</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="header">
+    <div class="container header-inner">
+      <h1>🍳 내 레시피 아카이브</h1>
+      <div class="header-actions">
+        <button id="openAddBtn" class="btn btn-primary">+ 레시피 추가</button>
+        <button id="openSettingsBtn" class="btn btn-secondary">GitHub 설정</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container main">
+    <section class="toolbar">
+      <input
+        type="search"
+        id="searchInput"
+        class="search-input"
+        placeholder="메뉴, 레시피 제목, 메모 검색..."
+      />
+      <div class="filter-row">
+        <div id="categoryTabs" class="tabs">
+          <button class="tab active" data-category="전체">전체</button>
+          <button class="tab" data-category="찌개/탕">찌개/탕</button>
+          <button class="tab" data-category="볶음/조림">볶음/조림</button>
+          <button class="tab" data-category="면/밥">면/밥</button>
+          <button class="tab" data-category="기타">기타</button>
+        </div>
+        <select id="sortSelect" class="select">
+          <option value="rating">최고 평점순</option>
+          <option value="recent">최근 수정순</option>
+        </select>
+      </div>
+    </section>
+
+    <div id="statusBanner" class="status-banner hidden"></div>
+    <section id="menuList" class="menu-list"></section>
+  </main>
+
+  <!-- 레시피 추가 / 수정 모달 -->
+  <div id="recipeModal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 id="modalTitle">레시피 추가</h2>
+        <button id="closeRecipeModal" class="icon-btn" aria-label="닫기">✕</button>
+      </div>
+      <form id="recipeForm" class="form">
+        <input type="hidden" id="editMenuId" />
+        <input type="hidden" id="editRecipeId" />
+
+        <label class="field">
+          <span>요리(메뉴) 이름 *</span>
+          <input
+            type="text"
+            id="menuNameInput"
+            list="existingMenusList"
+            placeholder="예: 차돌박이 된장찌개"
+            required
+          />
+          <datalist id="existingMenusList"></datalist>
+        </label>
+
+        <label class="field">
+          <span>카테고리</span>
+          <select id="categoryInput">
+            <option value="찌개/탕">찌개/탕</option>
+            <option value="볶음/조림">볶음/조림</option>
+            <option value="면/밥">면/밥</option>
+            <option value="기타">기타</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>레시피 제목 (출처/버전 구분) *</span>
+          <input
+            type="text"
+            id="recipeTitleInput"
+            placeholder="예: 백종원 스타일 된장찌개"
+            required
+          />
+        </label>
+
+        <label class="field">
+          <span>원본 링크 (유튜브, 블로그 등)</span>
+          <input
+            type="url"
+            id="recipeUrlInput"
+            placeholder="https://www.youtube.com/watch?v=..."
+          />
+        </label>
+
+        <label class="field">
+          <span>맛 만족도 (1~5점)</span>
+          <select id="ratingInput">
+            <option value="5">★★★★★ (5점 - 최고)</option>
+            <option value="4">★★★★☆ (4점 - 맛있음)</option>
+            <option value="3">★★★☆☆ (3점 - 무난)</option>
+            <option value="2">★★☆☆☆ (2점 - 아쉬움)</option>
+            <option value="1">★☆☆☆☆ (1점 - 비추)</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>조리 메모 / 개선 포인트</span>
+          <textarea
+            id="memoInput"
+            rows="3"
+            placeholder="양념 비율, 불 조절, 다음엔 다르게 할 점 등..."
+          ></textarea>
+        </label>
+
+        <div class="modal-footer">
+          <button type="button" id="cancelRecipeModal" class="btn btn-secondary">취소</button>
+          <button type="submit" id="saveRecipeBtn" class="btn btn-primary">저장</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- GitHub 연동 설정 모달 -->
+  <div id="settingsModal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2>GitHub 저장소 설정</h2>
+        <button id="closeSettingsModal" class="icon-btn" aria-label="닫기">✕</button>
+      </div>
+      <form id="settingsForm" class="form">
+        <p class="help-text">
+          이 브라우저에만 저장됩니다. 레시피 추가·수정·삭제를 하려면
+          <strong>Contents: Read and write</strong> 권한이 있는 Fine-grained PAT가 필요합니다.
+        </p>
+
+        <label class="field">
+          <span>GitHub 사용자/조직 아이디 (Owner) *</span>
+          <input type="text" id="ghOwnerInput" placeholder="예: octocat" required />
+        </label>
+
+        <label class="field">
+          <span>저장소 이름 (Repo) *</span>
+          <input type="text" id="ghRepoInput" placeholder="예: my-recipes" required />
+        </label>
+
+        <label class="field">
+          <span>파일 경로</span>
+          <input type="text" id="ghPathInput" value="data/recipes.json" required />
+        </label>
+
+        <label class="field">
+          <span>Personal Access Token (PAT)</span>
+          <input
+            type="password"
+            id="ghTokenInput"
+            placeholder="github_pat_... (읽기 전용이면 비워도 됨)"
+          />
+        </label>
+
+        <div class="modal-footer">
+          <button type="button" id="cancelSettingsModal" class="btn btn-secondary">닫기</button>
+          <button type="submit" class="btn btn-primary">설정 저장</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

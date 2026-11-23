@@ -1,0 +1,43 @@
+{
+  "updatedAt": "2026-11-21T17:00:00+09:00",
+  "menus": [
+    {
+      "id": "menu_1001",
+      "name": "차돌박이 된장찌개",
+      "category": "찌개/탕",
+      "recipes": [
+        {
+          "id": "rec_2001",
+          "title": "고깃집 스타일 된장찌개 레시피",
+          "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+          "rating": 5,
+          "memo": "된장 1.5스푼 + 쌈장 0.5스푼 비율이 딱 맞음. 차돌 기름 먼저 충분히 볶을 것.",
+          "updatedAt": "2026-11-21"
+        },
+        {
+          "id": "rec_2002",
+          "title": "멸치육수 맑은 된장찌개",
+          "url": "https://youtu.be/dQw4w9WgXcQ",
+          "rating": 3,
+          "memo": "깔끔하지만 고기 버전보다 감칠맛은 덜함. 청양고추 2개 추가하면 괜찮음.",
+          "updatedAt": "2026-11-15"
+        }
+      ]
+    },
+    {
+      "id": "menu_1002",
+      "name": "대패삼겹살 김치볶음밥",
+      "category": "면/밥",
+      "recipes": [
+        {
+          "id": "rec_2003",
+          "title": "불맛 나는 볶음밥 황금레시피",
+          "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+          "rating": 4,
+          "memo": "신김치 국물 2스푼 넣고 밥 볶은 뒤 마지막에 참기름·김가루.",
+          "updatedAt": "2026-11-18"
+        }
+      ]
+    }
+  ]
+}
